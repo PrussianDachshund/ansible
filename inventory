@@ -4,6 +4,7 @@ vboxuser@192.168.5.30
 
 [db_servers]
 192.168.5.118
+192.168.5.120
 
 [file_servers]
 vboxuser@192.168.5.30
