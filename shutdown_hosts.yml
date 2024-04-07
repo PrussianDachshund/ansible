@@ -1,0 +1,8 @@
+- hosts: all
+  become: true
+  tasks:
+
+  - name: shutdown hosts
+    community.general.shutdown:
+      delay: 10
+      msg: "Shut down by ansible"

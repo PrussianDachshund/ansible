@@ -1,0 +1,44 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: install updates (Ubuntu || Debian)
+    tags: always 
+    apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution in ["Ubuntu",  "Debian"]
+
+  - name: install updates (CentOS)
+    tags: always
+    dnf:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution == "CentOS"
+
+- hosts: all
+  become: true
+  tasks:
+  
+  - name: Create muser user
+    tags: always
+    user:
+      name: muser
+      group: root
+
+  - name: Add ssh key for muser
+    tags: always
+    authorized_key:
+      user: muser
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID7L7Z/s7Yn7Adk9c9FiQQU77XxzF3BwJlWWxADxL7m1 ansible"
+
+  - name: Add sudoers file for muser
+    tags: always
+    copy:
+      src: sudoer_muser
+      dest: /etc/sudoers.d/muser
+      owner: root
+      group: root
+      mode: 0440
