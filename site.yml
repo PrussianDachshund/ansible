@@ -4,19 +4,29 @@
   become: true
   pre_tasks:
 
-  - name: install updates (Ubuntu || Debian)
+  - name: update repo cache (Ubuntu || Debian)
     tags: always 
     apt:
-      upgrade: dist
       update_cache: yes
+    changed_when: false
     when: ansible_distribution in ["Ubuntu",  "Debian"]
 
-  - name: install updates (CentOS)
+  - name: update repo cache (CentOS)
     tags: always
     dnf:
-      update_only: yes
       update_cache: yes
+    changed_when: false
     when: ansible_distribution == "CentOS"
+
+- hosts: all
+  become: true
+  tasks:
+  
+  - name: Add ssh key for muser
+    tags: always
+    authorized_key:
+      user: muser
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID7L7Z/s7Yn7Adk9c9FiQQU77XxzF3BwJlWWxADxL7m1 ansible"
 
 - hosts: workstations
   become: true
