@@ -1,0 +1,5 @@
+- name: Add ssh key for muser
+  authorized_key:
+    user: muser
+    key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID7L7Z/s7Yn7Adk9c9FiQQU77XxzF3BwJlWWxADxL7m1 ansible"
+

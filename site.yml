@@ -13,119 +13,32 @@
 
   - name: update repo cache (CentOS)
     tags: always
-    dnf:
+    yum:
       update_cache: yes
     changed_when: false
     when: ansible_distribution == "CentOS"
 
 - hosts: all
   become: true
-  tasks:
-  
-  - name: Add ssh key for muser
-    tags: always
-    authorized_key:
-      user: muser
-      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAID7L7Z/s7Yn7Adk9c9FiQQU77XxzF3BwJlWWxADxL7m1 ansible"
+  roles:
+    - base
 
 - hosts: workstations
   become: true
-  tasks:
-
-  - name: install unzip
-    package:
-      name: unzip
-
-  - name: install terraform
-    unarchive:
-      src: https://releases.hashicorp.com/terraform/0.12.28/terraform_0.12.28_linux_amd64.zip
-      dest: /usr/local/bin
-      remote_src: yes
-      mode: 755
-      owner: root
-      group: root
-
+  roles:
+    - workstations
 
 - hosts: web_servers
   become: true
-  tasks:
-
-  - name: install apache and php packages (Ubuntu || Debian)
-    tags: apache,apache2,ubuntu
-    package:
-      name:
-        - apache2
-        - libapache2-mod-php
-      state: latest
-      update_cache: yes
-    when: ansible_distribution in ["Ubuntu", "Debian"]
-
-  - name: install apache and php packages (CentOS)
-    tags: apache,centos,httpd
-    dnf:
-      name:
-        - httpd
-        - php
-      state: latest
-    when: ansible_distribution == "CentOS"
-
-  - name: start http (CentOS)
-    tags: apache,centos,httpd
-    service:
-      name: httpd
-      state: started
-      enabled: yes
-    when: ansible_distribution == "CentOS"
-
-  - name: change email for admin
-    tags: apache,centos,httpd
-    lineinfile:
-      path: /etc/httpd/conf/httpd.conf
-      regexp: '^ServerAdmin'
-      line: ServerAdmin somebody@somwhere.net
-    when: ansible_distribution == 'CentOS'
-    register: httpd
-
-  - name: restart httpd (CentOS)
-    tags: apache,centos,httpd
-    service:
-      name: httpd
-      state: restarted
-    when: httpd.changed
-
-  - name: copy deafult html file for site
-    tags: apache,apache2,httpd
-    copy:
-      src: default_site.html
-      dest: /var/www/html/index.html
-      owner: root
-      group: root
-      mode: 0644
+  roles:
+    - web_servers
 
 - hosts: db_servers
   become: true
-  tasks:
-  
-  - name: install mariadb package (Ubuntu || Debian)
-    tags: db,maria,ubuntu
-    apt:
-      name: mariadb-server
-      state: latest
-    when: ansible_distribution == "Ubuntu"
-
-  - name: install mariadb package (CentOS)
-    tags: centos,db,maria
-    dnf:
-      name: mariadb
-      state: latest
-    when: ansible_distribution == "CentOS"
+  roles:
+    - db_servers
 
 - hosts: file_servers
   become: true
-  tasks:
-  
-  - name: install samba package
-    tags: samba
-    package:
-      name: samba
-      state: latest
+  roles:
+    - file_servers
