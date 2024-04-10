@@ -1,45 +1,26 @@
 - name: install apache and php packages (Ubuntu || Debian)
-  tags: apache,apache2,ubuntu
+  tags: apache,httpd,php
   package:
     name:
-      - apache2
-      - libapache2-mod-php
+      - "{{ apache_package_name }}"
+      - "{{ php_package_name }}"
     state: latest
-    update_cache: yes
-  when: ansible_distribution in ["Ubuntu", "Debian"]
 
-- name: install apache and php packages (CentOS)
-  tags: apache,centos,httpd
-  dnf:
-    name:
-      - httpd
-      - php
-    state: latest
-  when: ansible_distribution == "CentOS"
-
-- name: start http (CentOS)
-  tags: apache,centos,httpd
+- name: start and enable http service
+  tags: apache,httpd
   service:
-    name: httpd
+    name: "{{ apache_service }}"
     state: started
     enabled: yes
-  when: ansible_distribution == "CentOS"
 
 - name: change email for admin
   tags: apache,centos,httpd
   lineinfile:
     path: /etc/httpd/conf/httpd.conf
     regexp: '^ServerAdmin'
-    line: ServerAdmin somebody@somwhere.net
-  when: ansible_distribution == 'CentOS'
-  register: httpd
-
-- name: restart httpd (CentOS)
-  tags: apache,centos,httpd
-  service:
-    name: httpd
-    state: restarted
-  when: httpd.changed
+    line: ServerAdmin somebody@somwhere.com
+  when: ansible_distribution == "CentOS"
+  notify: restart_apache
 
 - name: copy deafult html file for site
   tags: apache,apache2,httpd
